@@ -45,72 +45,58 @@ public class AlternativeUnityPlayerActivity extends Activity implements SensorEv
 	}
 
 	// Pass any keys not handled by (unfocused) views straight to UnityPlayer
-	public boolean onKeyMultiple(int keyCode, int count, KeyEvent event)
-	{
+	public boolean onKeyMultiple(int keyCode, int count, KeyEvent event) {
 		return mUnityPlayer.onKeyMultiple(keyCode, count, event);
 	}
 
-	public boolean onKeyDown(int keyCode, KeyEvent event)
-	{
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		return mUnityPlayer.onKeyDown(keyCode, event);
 	}
 
-	public boolean onKeyUp(int keyCode, KeyEvent event)
-	{
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		return mUnityPlayer.onKeyUp(keyCode, event);
 	}
 
-	public void onConfigurationChanged(Configuration newConfig)
-	{
+	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		mUnityPlayer.configurationChanged(newConfig);
 	}
 
-	public void onWindowFocusChanged(boolean hasFocus)
-	{
+	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 		mUnityPlayer.windowFocusChanged(hasFocus);
 	}
 
-	protected void onCreate (Bundle savedInstanceState)
-	{
+	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-
 		mUnityPlayer = new UnityPlayer(this);
-		if (mUnityPlayer.getSettings().getBoolean("hide_status_bar", true))
-			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-			                       WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+		if (mUnityPlayer.getSettings().getBoolean("hide_status_bar", true)) {
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		}
 		int glesMode = mUnityPlayer.getSettings().getInt("gles_mode", 1);
 		boolean trueColor8888 = false;
 		mUnityPlayer.init(glesMode, trueColor8888);
-
 		View playerView = mUnityPlayer.getView();
 		setContentView(playerView);
 		playerView.requestFocus();
-
 		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 	}
 
-	protected void onDestroy ()
-	{
+	protected void onDestroy () {
 		mUnityPlayer.quit();
 		super.onDestroy();
 	}
 
 	// onPause()/onResume() must be sent to UnityPlayer to enable pause and resource recreation on resume.
-	protected void onPause()
-	{
+	protected void onPause() {
 		super.onPause();
 		mUnityPlayer.pause();
 		mSensorManager.unregisterListener(this);
 	}
 
-	protected void onResume()
-	{
+	protected void onResume() {
 		super.onResume();
 		mUnityPlayer.resume();
 		mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
