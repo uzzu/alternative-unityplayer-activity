@@ -29,6 +29,49 @@ public class AlternativeUnityPlayerActivity extends Activity implements SensorEv
 		ORIENTATION_THRESHOLD = 0.5D * Math.sqrt(3D);
 	}
 
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// nop
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) {
+			return;
+		}
+		Display display = mWindowManager.getDefaultDisplay();
+		int orientation = calcurateDeviceOrientation(event, display);
+		mUnityPlayer.nativeDeviceOrientation(orientation);
+	}
+
+	// Pass any keys not handled by (unfocused) views straight to UnityPlayer
+	public boolean onKeyMultiple(int keyCode, int count, KeyEvent event)
+	{
+		return mUnityPlayer.onKeyMultiple(keyCode, count, event);
+	}
+
+	public boolean onKeyDown(int keyCode, KeyEvent event)
+	{
+		return mUnityPlayer.onKeyDown(keyCode, event);
+	}
+
+	public boolean onKeyUp(int keyCode, KeyEvent event)
+	{
+		return mUnityPlayer.onKeyUp(keyCode, event);
+	}
+
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		super.onConfigurationChanged(newConfig);
+		mUnityPlayer.configurationChanged(newConfig);
+	}
+
+	public void onWindowFocusChanged(boolean hasFocus)
+	{
+		super.onWindowFocusChanged(hasFocus);
+		mUnityPlayer.windowFocusChanged(hasFocus);
+	}
+
 	protected void onCreate (Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
@@ -51,6 +94,7 @@ public class AlternativeUnityPlayerActivity extends Activity implements SensorEv
 		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 	}
+
 	protected void onDestroy ()
 	{
 		mUnityPlayer.quit();
@@ -64,51 +108,14 @@ public class AlternativeUnityPlayerActivity extends Activity implements SensorEv
 		mUnityPlayer.pause();
 		mSensorManager.unregisterListener(this);
 	}
+
 	protected void onResume()
 	{
 		super.onResume();
 		mUnityPlayer.resume();
 		mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
 	}
-	public void onConfigurationChanged(Configuration newConfig)
-	{
-		super.onConfigurationChanged(newConfig);
-		mUnityPlayer.configurationChanged(newConfig);
-	}
-	public void onWindowFocusChanged(boolean hasFocus)
-	{
-		super.onWindowFocusChanged(hasFocus);
-		mUnityPlayer.windowFocusChanged(hasFocus);
-	}
 
-	// Pass any keys not handled by (unfocused) views straight to UnityPlayer
-	public boolean onKeyMultiple(int keyCode, int count, KeyEvent event)
-	{
-		return mUnityPlayer.onKeyMultiple(keyCode, count, event);
-	}
-	public boolean onKeyDown(int keyCode, KeyEvent event)
-	{
-		return mUnityPlayer.onKeyDown(keyCode, event);
-	}
-	public boolean onKeyUp(int keyCode, KeyEvent event)
-	{
-		return mUnityPlayer.onKeyUp(keyCode, event);
-	}
-
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// nop
-	}
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) {
-			return;
-		}
-		Display display = mWindowManager.getDefaultDisplay();
-		int orientation = calcurateDeviceOrientation(event, display);
-		mUnityPlayer.nativeDeviceOrientation(orientation);
-	}
-	
 	private int calcurateDeviceOrientation(SensorEvent sensorEvent, Display display) {
 		float fx = sensorEvent.values[0];
 		float fy = sensorEvent.values[1];
